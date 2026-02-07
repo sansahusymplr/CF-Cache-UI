@@ -1,0 +1,17 @@
+<div class="login-container">
+  <h1>Login</h1>
+  
+  <div class="login-form">
+    <input type="email" [(ngModel)]="email" placeholder="Email">
+    <input type="password" [(ngModel)]="password" placeholder="Password">
+    <button (click)="login()">Login</button>
+    <button (click)="getUsers()">Get Users</button>
+    <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
+  </div>
+
+  <div class="users-section" *ngIf="users.length > 0">
+    <ul>
+      <li *ngFor="let user of users">{{ user.email }}</li>
+    </ul>
+  </div>
+</div>
