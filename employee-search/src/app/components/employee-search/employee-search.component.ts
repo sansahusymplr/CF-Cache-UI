@@ -14,7 +14,7 @@ export class EmployeeSearchComponent implements OnInit {
   total = 0;
   totalPages = 0;
   page = 1;
-  pageSize = 50;
+  pageSize = 200;
   isSearchMode = false;
   showAddForm = false;
   successMessage = '';
