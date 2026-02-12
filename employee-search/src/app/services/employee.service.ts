@@ -67,4 +67,19 @@ export class EmployeeService {
   addEmployee(employee: Omit<Employee, 'id'>): Observable<Employee> {
     return this.http.post<Employee>(this.apiUrl, employee);
   }
+
+  updateEmployee(id: number, employee: Omit<Employee, 'id'>): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, employee);
+  }
+
+  searchByDepartment(firstName?: string, department?: string, page: number = 1, pageSize: number = 50): Observable<PagedResponse<Employee>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+    
+    if (firstName) params = params.set('firstName', firstName);
+    if (department) params = params.set('department', department);
+
+    return this.http.get<PagedResponse<Employee>>(`${this.apiUrl}/{tenantId}/by-department`, { params });
+  }
 }

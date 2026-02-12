@@ -16,7 +16,9 @@ export class AuthService {
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap(response => {
-        localStorage.setItem('tenantId', response.tenantId);
+        if (response.tenantName) {
+          sessionStorage.setItem('tenantName', response.tenantName);
+        }
       })
     );
   }
@@ -26,11 +28,15 @@ export class AuthService {
   }
 
   getTenantId(): string | null {
-    return localStorage.getItem('tenantId');
+    return null;
   }
 
   logout(): void {
     localStorage.clear();
     sessionStorage.clear();
+  }
+
+  logoutApi(): Observable<any> {
+    return this.http.post(`${this.apiUrl}/logout`, {});
   }
 }

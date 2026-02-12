@@ -18,19 +18,22 @@ export class EmployeeSearchComponent implements OnInit {
   isSearchMode = false;
   showAddForm = false;
   successMessage = '';
+  editingId: number | null = null;
   
   searchCriteria = {
     firstName: '',
     lastName: '',
     companyName: '',
-    position: ''
+    position: '',
+    department: ''
   };
 
   newEmployee = {
     firstName: '',
     lastName: '',
     companyName: '',
-    position: ''
+    position: '',
+    department: ''
   };
 
   constructor(private employeeService: EmployeeService, private authService: AuthService, private router: Router) {}
@@ -53,24 +56,40 @@ export class EmployeeSearchComponent implements OnInit {
   search(): void {
     this.isSearchMode = true;
     this.showAddForm = false;
-    this.employeeService.search(
-      this.searchCriteria.firstName || undefined,
-      this.searchCriteria.lastName || undefined,
-      this.searchCriteria.companyName || undefined,
-      this.searchCriteria.position || undefined,
-      this.page,
-      this.pageSize
-    ).subscribe(
-      (response: PagedResponse<Employee>) => {
-        this.employees = response.data;
-        this.total = response.total;
-        this.totalPages = response.totalPages;
-      }
-    );
+    
+    if (this.searchCriteria.department) {
+      this.employeeService.searchByDepartment(
+        this.searchCriteria.firstName || undefined,
+        this.searchCriteria.department || undefined,
+        this.page,
+        this.pageSize
+      ).subscribe(
+        (response: PagedResponse<Employee>) => {
+          this.employees = response.data;
+          this.total = response.total;
+          this.totalPages = response.totalPages;
+        }
+      );
+    } else {
+      this.employeeService.search(
+        this.searchCriteria.firstName || undefined,
+        this.searchCriteria.lastName || undefined,
+        this.searchCriteria.companyName || undefined,
+        this.searchCriteria.position || undefined,
+        this.page,
+        this.pageSize
+      ).subscribe(
+        (response: PagedResponse<Employee>) => {
+          this.employees = response.data;
+          this.total = response.total;
+          this.totalPages = response.totalPages;
+        }
+      );
+    }
   }
 
   clear(): void {
-    this.searchCriteria = { firstName: '', lastName: '', companyName: '', position: '' };
+    this.searchCriteria = { firstName: '', lastName: '', companyName: '', position: '', department: '' };
     this.page = 1;
     this.employees = [];
     this.total = 0;
@@ -95,7 +114,7 @@ export class EmployeeSearchComponent implements OnInit {
   addEmployee(): void {
     this.employeeService.addEmployee(this.newEmployee).subscribe(
       () => {
-        this.newEmployee = { firstName: '', lastName: '', companyName: '', position: '' };
+        this.newEmployee = { firstName: '', lastName: '', companyName: '', position: '', department: '' };
         this.showAddForm = false;
         this.successMessage = 'Employee added successfully!';
         setTimeout(() => this.successMessage = '', 3000);
@@ -110,7 +129,38 @@ export class EmployeeSearchComponent implements OnInit {
   }
 
   logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/login']);
+    this.authService.logoutApi().subscribe(
+      () => {
+        this.authService.logout();
+        this.router.navigate(['/login']);
+      },
+      () => {
+        this.authService.logout();
+        this.router.navigate(['/login']);
+      }
+    );
+  }
+
+  editEmployee(employee: Employee): void {
+    this.editingId = employee.id;
+  }
+
+  updateEmployee(employee: Employee): void {
+    this.employeeService.updateEmployee(employee.id, employee).subscribe(
+      () => {
+        this.editingId = null;
+        this.successMessage = 'Employee updated successfully!';
+        setTimeout(() => this.successMessage = '', 3000);
+      }
+    );
+  }
+
+  cancelEdit(): void {
+    this.editingId = null;
+    if (this.isSearchMode) {
+      this.search();
+    } else {
+      this.loadEmployees();
+    }
   }
 }

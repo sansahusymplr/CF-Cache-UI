@@ -4,6 +4,8 @@ export interface Employee {
   lastName: string;
   companyName: string;
   position: string;
+  department?: string;
+  tenantName?: string;
 }
 
 export interface PagedResponse<T> {

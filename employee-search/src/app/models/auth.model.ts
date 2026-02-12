@@ -5,6 +5,7 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   tenantId: string;
+  tenantName: string;
   token?: string;
 }
 

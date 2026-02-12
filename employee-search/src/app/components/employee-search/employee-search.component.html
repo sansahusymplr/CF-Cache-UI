@@ -9,6 +9,7 @@
     <input type="text" [(ngModel)]="searchCriteria.lastName" placeholder="Last Name">
     <input type="text" [(ngModel)]="searchCriteria.companyName" placeholder="Company Name">
     <input type="text" [(ngModel)]="searchCriteria.position" placeholder="Position">
+    <input type="text" [(ngModel)]="searchCriteria.department" placeholder="Department">
     <button (click)="page = 1; search()">Search</button>
     <button (click)="clear()">Clear</button>
     <button (click)="showAddForm = !showAddForm">Add Employee</button>
@@ -22,6 +23,7 @@
     <input type="text" [(ngModel)]="newEmployee.lastName" placeholder="Last Name">
     <input type="text" [(ngModel)]="newEmployee.companyName" placeholder="Company Name">
     <input type="text" [(ngModel)]="newEmployee.position" placeholder="Position">
+    <input type="text" [(ngModel)]="newEmployee.department" placeholder="Department">
     <button (click)="addEmployee()">Save</button>
     <button (click)="showAddForm = false">Cancel</button>
   </div>
@@ -35,15 +37,38 @@
           <th>Last Name</th>
           <th>Company</th>
           <th>Position</th>
+          <th>Department</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let employee of employees">
           <td>{{ employee.id }}</td>
-          <td>{{ employee.firstName }}</td>
-          <td>{{ employee.lastName }}</td>
-          <td>{{ employee.companyName }}</td>
-          <td>{{ employee.position }}</td>
+          <td>
+            <input *ngIf="editingId === employee.id" type="text" [(ngModel)]="employee.firstName">
+            <span *ngIf="editingId !== employee.id">{{ employee.firstName }}</span>
+          </td>
+          <td>
+            <input *ngIf="editingId === employee.id" type="text" [(ngModel)]="employee.lastName">
+            <span *ngIf="editingId !== employee.id">{{ employee.lastName }}</span>
+          </td>
+          <td>
+            <input *ngIf="editingId === employee.id" type="text" [(ngModel)]="employee.companyName">
+            <span *ngIf="editingId !== employee.id">{{ employee.companyName }}</span>
+          </td>
+          <td>
+            <input *ngIf="editingId === employee.id" type="text" [(ngModel)]="employee.position">
+            <span *ngIf="editingId !== employee.id">{{ employee.position }}</span>
+          </td>
+          <td>
+            <input *ngIf="editingId === employee.id" type="text" [(ngModel)]="employee.department">
+            <span *ngIf="editingId !== employee.id">{{ employee.department }}</span>
+          </td>
+          <td>
+            <button *ngIf="editingId !== employee.id" (click)="editEmployee(employee)">Edit</button>
+            <button *ngIf="editingId === employee.id" (click)="updateEmployee(employee)">Save</button>
+            <button *ngIf="editingId === employee.id" (click)="cancelEdit()">Cancel</button>
+          </td>
         </tr>
       </tbody>
     </table>
