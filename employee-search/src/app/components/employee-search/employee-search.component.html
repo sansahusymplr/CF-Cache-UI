@@ -66,6 +66,7 @@
           </td>
           <td>
             <button *ngIf="editingId !== employee.id" (click)="editEmployee(employee)">Edit</button>
+            <button *ngIf="editingId !== employee.id" (click)="deleteEmployee(employee.id)">Delete</button>
             <button *ngIf="editingId === employee.id" (click)="updateEmployee(employee)">Save</button>
             <button *ngIf="editingId === employee.id" (click)="cancelEdit()">Cancel</button>
           </td>

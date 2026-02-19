@@ -163,4 +163,20 @@ export class EmployeeSearchComponent implements OnInit {
       this.loadEmployees();
     }
   }
+
+  deleteEmployee(id: number): void {
+    if (confirm('Are you sure you want to delete this employee?')) {
+      this.employeeService.deleteEmployee(id).subscribe(
+        () => {
+          this.successMessage = 'Employee deleted successfully!';
+          setTimeout(() => this.successMessage = '', 3000);
+          if (this.isSearchMode) {
+            this.search();
+          } else {
+            this.loadEmployees();
+          }
+        }
+      );
+    }
+  }
 }

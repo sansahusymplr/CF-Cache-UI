@@ -1,0 +1,136 @@
+@startuml ProviderView Edge Entry Pattern
+
+!define symplrlib https://plantuml-icons.symplr.com
+!includeurl symplrlib/logos/all.puml
+!includeurl symplrlib/corporate_marketing/all.puml
+!includeurl symplrlib/platform/all.puml
+
+skinparam titleFontSize 44
+skinparam padding 6
+skinparam defaultTextAlignment center
+skinparam TitleFontColor MidnightBlue
+skinparam RectangleBackgroundColor lavender
+skinparam RectangleBorderColor transparent
+skinparam DefaultFontSize 18
+
+!include <awslib14/AWSCommon>
+!include <awslib14/AWSSimplified.puml>
+!include <awslib14/GroupIcons/all.puml>
+!include <awslib14/Groups/all.puml>
+!include <awslib14/Compute/all.puml>
+!include <awslib14/NetworkingContentDelivery/all.puml>
+!include <awslib14/Storage/all.puml>
+!include <awslib14/SecurityIdentityCompliance/SecretsManager.puml>
+!include <C4/C4_Component>
+
+!pragma layout smetana
+
+<style>
+  document {
+    Margin 30 30 30 30
+  }
+</style>
+
+left header <$symplr_SymplrLogo,color=BlueViolet>
+center footer Symplr Confidential
+
+legend bottom left
+  <size:20><color:#1E88E5><b>━━━━━━━━━━</b></color> <color:black><b>UI layer req/res</b></color></size>
+  <size:20><color:#FB8C00><b>━━━━━━━━━━</b></color> <color:black><b>API layer req/res</b></color></size>
+endlegend
+
+title ProviderView Hosting Entry Pattern\nSingle CloudFront (UI + API Behaviors), Lambda@Edge, S3 CRR, API Origin Group (ALB failover)
+
+left to right direction
+
+' --------- Colored relation tags ----------
+AddRelTag("UI",   $lineColor="#1E88E5", $textColor="#1E88E5", $lineThickness="4")
+AddRelTag("API",  $lineColor="#FB8C00", $textColor="#FB8C00", $lineThickness="4")
+AddRelTag("EDGE", $lineColor="#4CAF50", $textColor="#4CAF50", $lineThickness="3")
+
+' --------- AWS Edge Location dashed box (NEW) ----------
+skinparam packageStyle rectangle
+skinparam package<<EdgeLoc>> {
+  BorderStyle dashed
+  BorderColor #9E9E9E
+  BackgroundColor transparent
+}
+
+actor user as User
+rectangle "Browser" as Browser
+rectangle "UltraDNS\n(DNS)" as UltraDNS
+rectangle "Cloudflare\n(WAF)" as Cloudflare
+
+' ========= AWS Edge Location (dashed box around CloudFront) =========
+package "AWS Edge Location" <<EdgeLoc>> {
+
+  CloudFront(cf, "CloudFront\nDistribution", "Single Distribution\nUI + API Behaviors")
+
+  rectangle "Behavior A (UI)\nPath pattern: /*\nCache: Enabled" as BehUI
+  
+  rectangle "Behavior B (API)\nPath pattern: /api/*\nCache pattern: api path + query parameter + Header(x-tenant-Id)" as BehAPI
+  
+  ' Lambda@Edge Functions
+  Lambda(lambdaViewer, "Lambda@Edge\n(Viewer Request)", "Authentication\nRequest Validation")
+}
+
+AWSCloudGroup(aws, "AWS Region") {
+
+  RegionGroup(use2, "us-east-2 (Primary)") {
+    VPCGroup(vpc1, "VPC") {
+      SimpleStorageService(s3Primary, "S3 (UI Bucket)\nOrigin Access Control", "Primary")
+      
+      ElasticLoadBalancingApplicationLoadBalancer(albPrimary, "ALB (API Origin A)", "Primary")
+    }
+  }
+
+  RegionGroup(usw2, "us-west-2 (Secondary)") {
+    VPCGroup(vpc2, "VPC") {
+      SimpleStorageService(s3Secondary, "S3 (UI Replica)\nOrigin Access Control", "CRR Target")
+      
+      ElasticLoadBalancingApplicationLoadBalancer(albSecondary, "ALB (API Origin B)", "Secondary")
+    }
+  }
+
+  ' Secrets Manager for Lambda@Edge
+  SecretsManager(secretsManager, "Secrets Manager", "API Keys & Signatures")
+}
+
+' ========= Common entry =========
+User -[#808080,thickness=4]-> Browser : <size:20>**①**</size>
+Browser <-[#1E88E5,thickness=4]-> UltraDNS : <size:20>**②**</size>
+
+Browser <-[#FB8C00,thickness=4]-> UltraDNS : <size:20>**⑧**</size>
+
+UltraDNS <-[#1E88E5,thickness=4]-> Cloudflare : <size:20>**③**</size>
+
+UltraDNS <-[#FB8C00,thickness=4]-> Cloudflare : <size:20>**⑨**</size>
+
+Cloudflare <-[#1E88E5,thickness=4]-> cf : <size:20>**④**</size>
+
+Cloudflare <-[#FB8C00,thickness=4]-> cf : <size:20>**⑩**</size>
+
+' ========= CloudFront behavior split =========
+cf -[#1E88E5,thickness=4]-> BehUI : <size:20>**⑤**</size>
+BehUI -[#1E88E5,thickness=4]-> cf : <size:20>**⑥**</size>\n<size:18>**Cache Hit**</size>
+cf -[#FB8C00,thickness=4]-> BehAPI : <size:20>**⑬**</size>
+BehAPI -[#FB8C00,thickness=4]-> cf : <size:20>**⑭**</size>\n<size:18>**Cache Hit**</size>
+
+' ========= Lambda@Edge Integration =========
+cf <-[#FB8C00,thickness=4]-> lambdaViewer : <size:20>**⑪**</size>
+lambdaViewer <-[#FB8C00,thickness=4]-> secretsManager : <size:20>**⑫**</size>
+
+' ========= UI FLOW (Behavior A) - Direct to S3 with OAC =========
+BehUI <-[#1E88E5,thickness=4]-> s3Primary : <size:20>**⑦**</size>\n<size:18>**Cache Miss**</size>
+
+' ========= API FLOW (Behavior B) =========
+BehAPI <-[#FB8C00,thickness=4]-> albPrimary : <size:20>**⑮**</size>\n<size:18>**Cache Miss**</size>
+Rel(albPrimary, albSecondary, "Failover to secondary", "", "", "API")
+
+' ========= CloudFront Origin Group Note =========
+note bottom of cf : CloudFront Origin Group (API)\nPrimary: ALB (us-east-2)\nSecondary: ALB (us-west-2)\nFailover on configured HTTP status codes\nNote: CloudFront failover supports GET/HEAD/OPTIONS
+
+' ========= Lambda@Edge Notes =========
+note left of lambdaViewer : Viewer Request:\nFetched tenantId from cookie with signature key\nwhich was set by application level post login\nand set header x-tenant-Id to cache at edge\nlayer with tenant scope
+
+@enduml
