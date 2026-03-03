@@ -10,6 +10,8 @@ import { AuthService } from './auth.service';
 })
 export class EmployeeService {
   private apiUrl = environment.apiUrl;
+  private searchUrl = environment.apiUrl.replace('/employee', '/employee/search');
+  private upsertUrl = environment.apiUrl.replace('/employee', '/employee/upsert');
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
@@ -17,7 +19,7 @@ export class EmployeeService {
     const params = new HttpParams()
       .set('page', page.toString())
       .set('pageSize', pageSize.toString());
-    return this.http.get<PagedResponse<Employee>>(`${this.apiUrl}/{tenantId}`, { params });
+    return this.http.get<PagedResponse<Employee>>(`${this.searchUrl}/{tenantId}`, { params });
   }
 
   search(firstName?: string, lastName?: string, companyName?: string, position?: string, page: number = 1, pageSize: number = 10): Observable<PagedResponse<Employee>> {
@@ -30,7 +32,7 @@ export class EmployeeService {
     if (companyName) params = params.set('companyName', companyName);
     if (position) params = params.set('position', position);
 
-    return this.http.get<PagedResponse<Employee>>(`${this.apiUrl}/{tenantId}/search`, { params });
+    return this.http.get<PagedResponse<Employee>>(`${this.searchUrl}/{tenantId}/search`, { params });
   }
 
   getByFirstName(firstName: string, page: number, pageSize: number): Observable<PagedResponse<Employee>> {
@@ -38,7 +40,7 @@ export class EmployeeService {
       .set('firstName', firstName)
       .set('page', page.toString())
       .set('pageSize', pageSize.toString());
-    return this.http.get<PagedResponse<Employee>>(`${this.apiUrl}/{tenantId}/by-firstname`, { params });
+    return this.http.get<PagedResponse<Employee>>(`${this.searchUrl}/{tenantId}/by-firstname`, { params });
   }
 
   getByLastName(lastName: string, page: number, pageSize: number): Observable<PagedResponse<Employee>> {
@@ -46,7 +48,7 @@ export class EmployeeService {
       .set('lastName', lastName)
       .set('page', page.toString())
       .set('pageSize', pageSize.toString());
-    return this.http.get<PagedResponse<Employee>>(`${this.apiUrl}/{tenantId}/by-lastname`, { params });
+    return this.http.get<PagedResponse<Employee>>(`${this.searchUrl}/{tenantId}/by-lastname`, { params });
   }
 
   getByCompany(companyName: string, page: number, pageSize: number): Observable<PagedResponse<Employee>> {
@@ -54,7 +56,7 @@ export class EmployeeService {
       .set('companyName', companyName)
       .set('page', page.toString())
       .set('pageSize', pageSize.toString());
-    return this.http.get<PagedResponse<Employee>>(`${this.apiUrl}/{tenantId}/by-company`, { params });
+    return this.http.get<PagedResponse<Employee>>(`${this.searchUrl}/{tenantId}/by-company`, { params });
   }
 
   getByPosition(position: string, page: number, pageSize: number): Observable<PagedResponse<Employee>> {
@@ -62,19 +64,19 @@ export class EmployeeService {
       .set('position', position)
       .set('page', page.toString())
       .set('pageSize', pageSize.toString());
-    return this.http.get<PagedResponse<Employee>>(`${this.apiUrl}/{tenantId}/by-position`, { params });
+    return this.http.get<PagedResponse<Employee>>(`${this.searchUrl}/{tenantId}/by-position`, { params });
   }
 
   addEmployee(employee: Omit<Employee, 'id'>): Observable<Employee> {
-    return this.http.post<Employee>(this.apiUrl, employee);
+    return this.http.post<Employee>(this.upsertUrl, employee);
   }
 
   updateEmployee(id: number, employee: Omit<Employee, 'id'>): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, employee);
+    return this.http.put(`${this.upsertUrl}/${id}`, employee);
   }
 
   deleteEmployee(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+    return this.http.delete(`${this.upsertUrl}/${id}`);
   }
 
   searchByDepartment(firstName?: string, department?: string, page: number = 1, pageSize: number = 50): Observable<PagedResponse<Employee>> {
@@ -85,6 +87,6 @@ export class EmployeeService {
     if (firstName) params = params.set('firstName', firstName);
     if (department) params = params.set('department', department);
 
-    return this.http.get<PagedResponse<Employee>>(`${this.apiUrl}/{tenantId}/by-department`, { params });
+    return this.http.get<PagedResponse<Employee>>(`${this.searchUrl}/{tenantId}/by-department`, { params });
   }
 }
