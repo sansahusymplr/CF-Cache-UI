@@ -10,8 +10,8 @@ import { AuthService } from './auth.service';
 })
 export class EmployeeService {
   private apiUrl = environment.apiUrl;
-  private searchUrl = environment.apiUrl.replace('/employee', '/employee/search');
-  private upsertUrl = environment.apiUrl.replace('/employee', '/employee/upsert');
+  private searchUrl = environment.apiUrl.replace('/api/employee', '/api/search/employee');
+  private upsertUrl = environment.apiUrl.replace('/api/employee', '/api/upsert/employee');
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
