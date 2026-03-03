@@ -10,11 +10,13 @@ import { environment } from '../../environments/environment';
 })
 export class AuthService {
   private apiUrl = environment.apiUrl.replace('/api/employee', '/api/auth');
+  private authSearchUrl = environment.apiUrl.replace('/api/employee', '/api/auth/search');
+  private authUpsertUrl = environment.apiUrl.replace('/api/employee', '/api/auth/upsert');
 
   constructor(private http: HttpClient) {}
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
+    return this.http.post<LoginResponse>(`${this.authUpsertUrl}/login`, credentials).pipe(
       tap(response => {
         if (response.tenantName) {
           sessionStorage.setItem('tenantName', response.tenantName);
@@ -24,7 +26,7 @@ export class AuthService {
   }
 
   getUsers(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.apiUrl}/users`);
+    return this.http.get<User[]>(`${this.authSearchUrl}/users`);
   }
 
   getTenantId(): string | null {
@@ -37,6 +39,6 @@ export class AuthService {
   }
 
   logoutApi(): Observable<any> {
-    return this.http.post(`${this.apiUrl}/logout`, {});
+    return this.http.post(`${this.authUpsertUrl}/logout`, {});
   }
 }
