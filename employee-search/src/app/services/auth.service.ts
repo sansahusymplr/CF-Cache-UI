@@ -10,8 +10,8 @@ import { environment } from '../../environments/environment';
 })
 export class AuthService {
   private apiUrl = environment.apiUrl.replace('/api/employee', '/api/auth');
-  private authSearchUrl = environment.apiUrl.replace('/api/employee', '/api/search/auth');
-  private authUpsertUrl = environment.apiUrl.replace('/api/employee', '/api/upsert/auth');
+  private authSearchUrl = environment.apiUrl.replace('/api/employee', '/api/auth/search');
+  private authUpsertUrl = environment.apiUrl.replace('/api/employee', '/api/auth/upsert');
 
   constructor(private http: HttpClient) {}
 
