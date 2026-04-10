@@ -21,7 +21,8 @@ export class LoginComponent {
     this.authService.login({ email: this.email, password: this.password }).subscribe(
       response => {
         this.errorMessage = '';
-        this.router.navigate(['/search']);
+        sessionStorage.setItem('userEmail', this.email);
+        this.router.navigate(['/dashboard']);
       },
       error => {
         this.errorMessage = 'Login failed';

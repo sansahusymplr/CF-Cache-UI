@@ -4,6 +4,16 @@
     <button class="logout-btn" (click)="logout()">Logout</button>
   </div>
   
+  <div class="entity-section" *ngIf="entities.length > 0">
+    <label>Entity</label>
+    <div class="entity-multi-select">
+      <div class="entity-checkbox" *ngFor="let entity of entities">
+        <input type="checkbox" [id]="entity.name" [value]="entity.name" [checked]="selectedEntities.includes(entity.name)" (change)="onEntityToggle(entity.name, $event)">
+        <label [for]="entity.name">{{ entity.name }}</label>
+      </div>
+    </div>
+  </div>
+
   <div class="search-form">
     <input type="text" [(ngModel)]="searchCriteria.firstName" placeholder="First Name">
     <input type="text" [(ngModel)]="searchCriteria.lastName" placeholder="Last Name">

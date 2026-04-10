@@ -1,0 +1,45 @@
+<div class="container">
+  <h2>Image Management</h2>
+
+  <div class="upload-section">
+    <h3>Upload Image</h3>
+    <input type="file" (change)="onFileSelected($event)" accept="image/*">
+    <button (click)="uploadImage()" [disabled]="!selectedFile || loading">Upload</button>
+  </div>
+
+  <div *ngIf="message" class="message">{{ message }}</div>
+
+  <div class="images-section">
+    <div class="header">
+      <h3>Images</h3>
+      <div class="search-controls">
+        <input type="text" [(ngModel)]="searchId" placeholder="Search by ID">
+        <button (click)="searchById()" [disabled]="!searchId || loading">🔍 Search</button>
+        <button (click)="loadImages()" [disabled]="loading">🔄 Refresh All</button>
+      </div>
+    </div>
+    <div *ngIf="loading" class="loading">Loading...</div>
+    <table *ngIf="!loading && images.length > 0">
+      <thead>
+        <tr>
+          <th>File Name</th>
+          <th>Size</th>
+          <th>Uploaded At</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let image of images">
+          <td>{{ image.fileName }}</td>
+          <td>{{ (image.size / 1024).toFixed(2) }} KB</td>
+          <td>{{ image.uploadedAt | date:'short' }}</td>
+          <td>
+            <button (click)="downloadImage(image.id, image.fileName)">Download</button>
+            <button (click)="deleteImage(image.id)" class="delete-btn">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div *ngIf="!loading && images.length === 0" class="no-data">No images found</div>
+  </div>
+</div>

@@ -15,10 +15,20 @@ export class EmployeeService {
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
+  private appendEntity(params: HttpParams): HttpParams {
+    const entities = sessionStorage.getItem('selectedEntities');
+    if (entities) {
+      const parsed = JSON.parse(entities) as string[];
+      parsed.forEach(e => params = params.append('entity', e));
+    }
+    return params;
+  }
+
   getEmployees(page: number, pageSize: number): Observable<PagedResponse<Employee>> {
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('page', page.toString())
       .set('pageSize', pageSize.toString());
+    params = this.appendEntity(params);
     return this.http.get<PagedResponse<Employee>>(`${this.searchUrl}/{tenantId}`, { params });
   }
 
@@ -31,39 +41,44 @@ export class EmployeeService {
     if (lastName) params = params.set('lastName', lastName);
     if (companyName) params = params.set('companyName', companyName);
     if (position) params = params.set('position', position);
+    params = this.appendEntity(params);
 
     return this.http.get<PagedResponse<Employee>>(`${this.searchUrl}/{tenantId}/search`, { params });
   }
 
   getByFirstName(firstName: string, page: number, pageSize: number): Observable<PagedResponse<Employee>> {
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('firstName', firstName)
       .set('page', page.toString())
       .set('pageSize', pageSize.toString());
+    params = this.appendEntity(params);
     return this.http.get<PagedResponse<Employee>>(`${this.searchUrl}/{tenantId}/by-firstname`, { params });
   }
 
   getByLastName(lastName: string, page: number, pageSize: number): Observable<PagedResponse<Employee>> {
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('lastName', lastName)
       .set('page', page.toString())
       .set('pageSize', pageSize.toString());
+    params = this.appendEntity(params);
     return this.http.get<PagedResponse<Employee>>(`${this.searchUrl}/{tenantId}/by-lastname`, { params });
   }
 
   getByCompany(companyName: string, page: number, pageSize: number): Observable<PagedResponse<Employee>> {
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('companyName', companyName)
       .set('page', page.toString())
       .set('pageSize', pageSize.toString());
+    params = this.appendEntity(params);
     return this.http.get<PagedResponse<Employee>>(`${this.searchUrl}/{tenantId}/by-company`, { params });
   }
 
   getByPosition(position: string, page: number, pageSize: number): Observable<PagedResponse<Employee>> {
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('position', position)
       .set('page', page.toString())
       .set('pageSize', pageSize.toString());
+    params = this.appendEntity(params);
     return this.http.get<PagedResponse<Employee>>(`${this.searchUrl}/{tenantId}/by-position`, { params });
   }
 
@@ -86,6 +101,7 @@ export class EmployeeService {
     
     if (firstName) params = params.set('firstName', firstName);
     if (department) params = params.set('department', department);
+    params = this.appendEntity(params);
 
     return this.http.get<PagedResponse<Employee>>(`${this.searchUrl}/{tenantId}/by-department`, { params });
   }

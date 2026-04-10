@@ -1,0 +1,14 @@
+<div class="dashboard">
+  <h2>Welcome, {{ tenantName }}</h2>
+  <p>Select a section</p>
+  <div class="cards">
+    <div class="card" (click)="navigateTo('/search')">
+      <h3>🔍 Employee Search</h3>
+      <p>Search and manage employees</p>
+    </div>
+    <div class="card" (click)="navigateTo('/images')">
+      <h3>🖼️ Image Management</h3>
+      <p>Upload, search, download and delete images</p>
+    </div>
+  </div>
+</div>

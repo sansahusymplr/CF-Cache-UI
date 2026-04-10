@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { EmployeeService } from '../../services/employee.service';
 import { AuthService } from '../../services/auth.service';
+import { UserEntityService, Entity } from '../../services/user-entity.service';
 import { Employee, PagedResponse } from '../../models/employee.model';
 
 @Component({
@@ -11,6 +12,8 @@ import { Employee, PagedResponse } from '../../models/employee.model';
 })
 export class EmployeeSearchComponent implements OnInit {
   employees: Employee[] = [];
+  entities: Entity[] = [];
+  selectedEntities: string[] = [];
   total = 0;
   totalPages = 0;
   page = 1;
@@ -36,9 +39,26 @@ export class EmployeeSearchComponent implements OnInit {
     department: ''
   };
 
-  constructor(private employeeService: EmployeeService, private authService: AuthService, private router: Router) {}
+  constructor(private employeeService: EmployeeService, private authService: AuthService, private userEntityService: UserEntityService, private router: Router) {}
 
   ngOnInit(): void {
+    const email = sessionStorage.getItem('userEmail') || '';
+    if (email) {
+      this.userEntityService.getEntitiesByEmail(email).subscribe(
+        response => {
+          this.entities = response.entities;
+        }
+      );
+    }
+  }
+
+  onEntityToggle(name: string, event: any): void {
+    if (event.target.checked) {
+      this.selectedEntities.push(name);
+    } else {
+      this.selectedEntities = this.selectedEntities.filter(e => e !== name);
+    }
+    sessionStorage.setItem('selectedEntities', JSON.stringify(this.selectedEntities));
   }
 
   loadEmployees(): void {

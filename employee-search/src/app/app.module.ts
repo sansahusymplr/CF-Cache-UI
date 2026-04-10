@@ -7,13 +7,17 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { EmployeeSearchComponent } from './components/employee-search/employee-search.component';
 import { LoginComponent } from './components/login/login.component';
+import { ImageManagementComponent } from './components/image-management/image-management.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { TenantInterceptor } from './interceptors/tenant.interceptor';
 
 @NgModule({
   declarations: [
     AppComponent,
     EmployeeSearchComponent,
-    LoginComponent
+    LoginComponent,
+    ImageManagementComponent,
+    DashboardComponent
   ],
   imports: [
     BrowserModule,
